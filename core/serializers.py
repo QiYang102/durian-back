@@ -40,9 +40,9 @@ class UserSerializer(DynamicModelSerializer):
 
 class UserRegisterSerializer(serializers.Serializer):
     username = serializers.CharField(min_length=6, max_length=150, required=True)
-    fullname = serializers.CharField(max_length=100, allow_null=True)
-    mobile_prefix = serializers.CharField(max_length=6, allow_null=True)
-    mobile_number = serializers.CharField(max_length=20, allow_null=True)
+    fullname = serializers.CharField(max_length=100, required=False, allow_null=True, allow_blank=True)
+    mobile_prefix = serializers.CharField(max_length=6, required=False, allow_null=True, allow_blank=True)
+    mobile_number = serializers.CharField(max_length=20, required=False, allow_null=True, allow_blank=True)
     email = serializers.EmailField(required=True)
     password1 = serializers.CharField(write_only=True, required=False)
     password2 = serializers.CharField(write_only=True, required=False)
@@ -91,6 +91,9 @@ class UserRegisterSerializer(serializers.Serializer):
         cleaned_data = self.get_cleaned_data()
         cleaned_data.update(kwargs)
         user = User.objects.create_user(**cleaned_data)
+        user.role = User.ROLE_MEMBER
+        user.is_verify = not settings.USER_VERIFICATION
+        user.save()
         return user
 
 

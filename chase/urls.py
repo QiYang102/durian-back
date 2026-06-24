@@ -49,11 +49,13 @@ router.register(r'tasks', TaskViewSet)
 router.register(r'task-hours', TaskHourViewSet)
 router.register(r'task-images', TaskImageViewSet, basename='task-image')
 
-from durian_store.views import CategoryViewSet, ProductViewSet, PromoCodeViewSet, OrderViewSet
+from durian_store.views import CategoryViewSet, ProductViewSet, PromoCodeViewSet, OrderViewSet, SystemSettingViewSet, HomeBannerViewSet
 router.register(r'durian/categories', CategoryViewSet, basename='durian-category')
 router.register(r'durian/products', ProductViewSet, basename='durian-product')
 router.register(r'durian/promo-codes', PromoCodeViewSet, basename='durian-promo-code')
 router.register(r'durian/orders', OrderViewSet, basename='durian-order')
+router.register(r'durian/settings', SystemSettingViewSet, basename='durian-setting')
+router.register(r'durian/banners', HomeBannerViewSet, basename='durian-banner')
 router.register(r'story-images', StoryImageViewSet, basename='story-image')
 router.register(r'task-templates', TaskTemplateViewSet)
 router.register(r'task-template-items', TaskTemplateItemViewSet)

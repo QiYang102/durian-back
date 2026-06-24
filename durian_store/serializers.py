@@ -1,5 +1,5 @@
 from dynamic_rest.serializers import DynamicModelSerializer
-from .models import Category, Product, PromoCode, Order, OrderItem
+from .models import Category, Product, PromoCode, Order, OrderItem, SystemSetting, HomeBanner
 from dynamic_rest.fields import DynamicRelationField
 from rest_framework import serializers
 
@@ -21,6 +21,12 @@ class PromoCodeSerializer(DynamicModelSerializer):
     class Meta:
         model = PromoCode
         name = 'promo_code'
+        fields = '__all__'
+
+class SystemSettingSerializer(DynamicModelSerializer):
+    class Meta:
+        model = SystemSetting
+        name = 'system_setting'
         fields = '__all__'
 
 class OrderItemSerializer(DynamicModelSerializer):
@@ -54,3 +60,9 @@ class OrderSerializer(DynamicModelSerializer):
                     total_price=item_data.get('total_price', 0)
                 )
         return order
+
+class HomeBannerSerializer(DynamicModelSerializer):
+    class Meta:
+        model = HomeBanner
+        name = 'home_banner'
+        fields = '__all__'

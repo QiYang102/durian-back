@@ -16,21 +16,36 @@ class Product(AbstractBaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     weight = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    image = models.URLField(blank=True, null=True)
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_featured = models.BooleanField(default=False)
+    is_best_seller = models.BooleanField(default=False)
 
 class PromoCode(AbstractBaseModel):
-    discount_type = models.CharField(max_length=20, choices=[('percentage', 'Percentage'), ('fixed', 'Fixed')])
-    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
-    valid_from = models.DateTimeField()
-    valid_until = models.DateTimeField()
-    max_uses = models.IntegerField(default=1)
+    DISCOUNT_CHOICES = [
+        ('percentage', 'Percentage'),
+        ('fixed', 'Fixed'),
+        ('bogo', 'Buy 1 Free 1'),
+        ('free_shipping', 'Free Shipping')
+    ]
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_CHOICES)
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    valid_from = models.DateTimeField(null=True, blank=True)
+    valid_until = models.DateTimeField(null=True, blank=True)
+    max_uses = models.IntegerField(default=100)
     current_uses = models.IntegerField(default=0)
+
+class SystemSetting(AbstractBaseModel):
+    key = models.CharField(max_length=100, unique=True)
+    value = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"
 
 class Order(AbstractBaseModel):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('paid', 'Paid'),
+        ('success_paid', 'Success Paid'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled')
     ]
@@ -40,6 +55,7 @@ class Order(AbstractBaseModel):
     delivery_address = models.TextField()
     promo_code = models.ForeignKey(PromoCode, on_delete=models.SET_NULL, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_receipt = models.ImageField(upload_to='receipts/', null=True, blank=True)
@@ -51,3 +67,13 @@ class OrderItem(AbstractBaseModel):
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+class HomeBanner(AbstractBaseModel):
+    title = models.CharField(max_length=200, blank=True, null=True)
+    subtitle = models.CharField(max_length=200, blank=True, null=True)
+    image = models.ImageField(upload_to='banners/', null=True, blank=True)
+    link_url = models.CharField(max_length=255, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title or "Banner"

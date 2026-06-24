@@ -11,6 +11,7 @@ class CategorySerializer(DynamicModelSerializer):
 
 class ProductSerializer(DynamicModelSerializer):
     category = DynamicRelationField('CategorySerializer', embed=True)
+    
     class Meta:
         model = Product
         name = 'product'

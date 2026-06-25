@@ -40,6 +40,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_EXPOSE_HEADERS = ['content-disposition']
 CORS_ALLOW_HEADERS = ['x-secret-key','authorization', 'content-type', 'accept', 'origin', 'x-requested-with', 'x-csrftoken']
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 DEV_TEST = env.bool('DEV_TEST', False)
 # set True to skip if running for database migration

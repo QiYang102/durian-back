@@ -90,6 +90,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'easyaudit.middleware.easyaudit.EasyAuditMiddleware',
@@ -188,6 +189,7 @@ MEDIA_ROOT = ROOT_DIR(env.str('MEDIA_RELATIVE_PATH', default='media'))
 MEDIA_URL = env.str('MEDIA_URL', default='/media/')
 STATIC_ROOT = ROOT_DIR(env.str('STATIC_RELATIVE_PATH', default='static'))
 STATIC_URL = env.str('STATIC_URL', default='/static/')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240

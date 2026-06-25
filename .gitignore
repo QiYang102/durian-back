@@ -185,6 +185,7 @@ pip-selfcheck.json
 *.sqlite3
 
 media/
+static/
 log-files/
 
 ~$*.xlsx

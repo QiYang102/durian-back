@@ -4,7 +4,7 @@ from datetime import datetime
 
 from .version import PROJECT_CODE, PROJECT_VERSION, PROJECT_ENVIRONMENT
 
-PROJECT_NAME = "Durian Is Ok"
+PROJECT_NAME = "DuriNow"
 
 PROCESS_ID = os.getpid()
 
@@ -20,7 +20,10 @@ APPS_DIR = ROOT_DIR.path(PROJECT_CODE)
 env = environ.Env()
 
 # This part will read env file if it exists
-env_filename = f'setting-{PROJECT_CODE}.{PROJECT_ENVIRONMENT}.env'
+env_filename = os.path.join(
+    ROOT_DIR(),
+    f"setting-{PROJECT_CODE}.{PROJECT_ENVIRONMENT}.env",
+)
 
 if os.path.exists(env_filename):
     env.read_env(env_filename)

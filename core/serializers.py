@@ -10,25 +10,18 @@ from rest_framework import serializers
 
 class UserSerializer(DynamicModelSerializer):
     feature_access = DynamicMethodField(requires=['featureaccess_set'])
-    team = DynamicMethodField()
 
     class Meta:
         model = User
         name = 'user'
         fields = ('id', 'username', 'email', 'fullname', 'mobile_number', 'is_active', 'is_verify', 'date_joined', 'last_login',
-                  'role', 'device_token', 'feature_access', 'create_by', 'update_by', 'update_at', 'team', 'capacity','image', )
+                  'role', 'device_token', 'feature_access', 'create_by', 'update_by', 'update_at', 'capacity','image', )
         read_only_fields = ('feature_access', 'create_by', 'update_by', 'update_at', )
         deferred_fields = ('is_active', 'date_joined', 'last_login', 'feature_access', 'create_by', 'update_by', 'update_at', )
 
     def get_feature_access(self, obj):
         return [item.feature.code for item in obj.featureaccess_set.prefetch_related('feature').all() if item.feature.is_active]
 
-    def get_team(self, obj):
-        team_member = obj.teammember_set.first()
-        if team_member:
-            return team_member.team.id
-        return None
-    
     def validate_email(self, email):
         email_exist = User.objects.filter(email__iexact=email).exists()
 
@@ -102,7 +95,7 @@ class JWTUserSerializer(UserSerializer):
         model = User
         name = 'user'
         fields = ('id', 'username', 'email', 'fullname','image', 'mobile_prefix', 'mobile_number', 'is_active', 'is_verify', 'date_joined', 'last_login', 'role', 'device_token',
-                  'feature_access', 'msisdn', 'create_by', 'update_by', 'update_at', 'team',)
+                  'feature_access', 'msisdn', 'create_by', 'update_by', 'update_at',)
         read_only_fields = ('id', 'username', 'email', 'fullname','image','mobile_prefix', 'mobile_number', 'is_active', 'is_verify', 'date_joined', 'last_login', 'role',
                             'feature_access', 'msisdn', 'create_by', 'update_by', 'update_at',)
         deferred_fields = ('is_active',)

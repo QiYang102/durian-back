@@ -72,15 +72,6 @@ THIRD_PARTY_APPS = [
 # Current project apps
 LOCAL_APPS = [
     'core.apps.CoreConfig',
-    'team.apps.TeamConfig',
-    'iteration.apps.IterationConfig',
-    'story.apps.StoryConfig',
-    'task.apps.TaskConfig',
-    'project.apps.ProjectConfig',
-    'eventcalendar.apps.EventCalendarConfig',
-    'kopirecord.apps.KopirecordConfig',
-    'announcement.apps.AnnouncementConfig',
-    'reporting.apps.ReportingConfig',
     'durian_store.apps.DurianStoreConfig',
 ]
 

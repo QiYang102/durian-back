@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Sum, Count
+from django.utils import timezone
 from .models import Category, Product, PromoCode, Order, SystemSetting, HomeBanner
 from .serializers import CategorySerializer, ProductSerializer, PromoCodeSerializer, OrderSerializer, SystemSettingSerializer, HomeBannerSerializer
 
@@ -61,6 +62,9 @@ class PromoCodeViewSet(DynamicModelViewSet):
         code = request.data.get('code')
         try:
             promo = PromoCode.objects.get(name=code)
+            if promo.current_uses >= promo.max_uses:
+                return Response({'error': 'Promo code usage limit reached'}, status=400)
+                
             return Response(self.get_serializer(promo).data)
         except PromoCode.DoesNotExist:
             return Response({'error': 'Invalid code'}, status=400)
@@ -122,9 +126,13 @@ class OrderViewSet(DynamicModelViewSet):
 
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:
-            serializer.save(user=self.request.user)
+            order = serializer.save(user=self.request.user)
         else:
-            serializer.save()
+            order = serializer.save()
+            
+        if order.promo_code:
+            order.promo_code.current_uses += 1
+            order.promo_code.save()
 
     @action(detail=True, methods=['post'])
     def upload_receipt(self, request, pk=None):
@@ -200,9 +208,27 @@ class OrderViewSet(DynamicModelViewSet):
         if new_status not in ['pending', 'paid', 'success_paid', 'delivered', 'cancelled']:
             return Response({'error': 'Invalid status'}, status=400)
         
+        if order.status != 'cancelled' and new_status == 'cancelled':
+            if order.promo_code:
+                order.promo_code.current_uses = max(0, order.promo_code.current_uses - 1)
+                order.promo_code.save()
+                
         order.status = new_status
         order.save()
         return Response({'status': 'updated', 'new_status': new_status})
+
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        order = self.get_object()
+        if order.status != 'pending':
+            return Response({'error': 'Only pending orders can be cancelled'}, status=400)
+            
+        order.status = 'cancelled'
+        if order.promo_code:
+            order.promo_code.current_uses = max(0, order.promo_code.current_uses - 1)
+            order.promo_code.save()
+        order.save()
+        return Response({'status': 'cancelled'})
 
 class HomeBannerViewSet(DynamicModelViewSet):
     queryset = HomeBanner.objects.all()

@@ -6,6 +6,7 @@ from firebase_admin import credentials
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
+
 # JSON Web Token Authentication
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=7),

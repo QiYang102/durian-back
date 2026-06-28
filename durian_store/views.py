@@ -120,7 +120,7 @@ class OrderViewSet(DynamicModelViewSet):
         return Order.objects.none()
 
     def get_permissions(self):
-        if self.action in ['admin_orders', 'admin_dashboard', 'update_status']:
+        if self.action in ['admin_orders', 'admin_dashboard', 'update_status', 'update', 'partial_update', 'destroy']:
             return [IsAdminRole()]
         return [AllowAny()]
 
@@ -164,6 +164,7 @@ class OrderViewSet(DynamicModelViewSet):
             data.append({
                 'id': order.id,
                 'hashid': order.hashid,
+                'customer_name': order.customer_name,
                 'mobile_number': order.mobile_number,
                 'delivery_date': str(order.delivery_date),
                 'delivery_address': order.delivery_address,
@@ -180,6 +181,8 @@ class OrderViewSet(DynamicModelViewSet):
 
     @action(detail=False, methods=['get'])
     def admin_dashboard(self, request):
+        from django.utils import timezone
+        from datetime import timedelta
         orders = Order.objects.all()
         total_orders = orders.count()
         total_revenue = orders.exclude(status='cancelled').aggregate(
@@ -191,6 +194,31 @@ class OrderViewSet(DynamicModelViewSet):
         delivered_orders = orders.filter(status='delivered').count()
         cancelled_orders = orders.filter(status='cancelled').count()
 
+        today = timezone.now().date()
+        today_orders = orders.filter(create_at__date=today).count()
+        
+        delivered_revenue = orders.filter(status='delivered').aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
+        
+        pending_revenue = orders.filter(status__in=['pending', 'paid', 'success_paid']).aggregate(
+            total=Sum('total_amount')
+        )['total'] or 0
+
+        chart_data = []
+        for i in range(6, -1, -1):
+            day = today - timedelta(days=i)
+            day_orders = orders.filter(create_at__date=day)
+            day_count = day_orders.count()
+            day_revenue = day_orders.exclude(status='cancelled').aggregate(
+                total=Sum('total_amount')
+            )['total'] or 0
+            chart_data.append({
+                'date': str(day),
+                'orders': day_count,
+                'revenue': float(day_revenue)
+            })
+
         return Response({
             'total_orders': total_orders,
             'total_revenue': float(total_revenue),
@@ -199,6 +227,10 @@ class OrderViewSet(DynamicModelViewSet):
             'success_paid_orders': success_paid_orders,
             'delivered_orders': delivered_orders,
             'cancelled_orders': cancelled_orders,
+            'today_orders': today_orders,
+            'delivered_revenue': float(delivered_revenue),
+            'pending_revenue': float(pending_revenue),
+            'chart_data': chart_data,
         })
 
     @action(detail=True, methods=['post'])

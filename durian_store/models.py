@@ -19,6 +19,7 @@ class Product(AbstractBaseModel):
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_featured = models.BooleanField(default=False)
     is_best_seller = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
 
 class PromoCode(AbstractBaseModel):
     DISCOUNT_CHOICES = [
@@ -50,6 +51,7 @@ class Order(AbstractBaseModel):
         ('cancelled', 'Cancelled')
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='durian_orders', null=True, blank=True)
+    customer_name = models.CharField(max_length=100, default='')
     mobile_number = models.CharField(max_length=20)
     delivery_date = models.DateField()
     delivery_address = models.TextField()
